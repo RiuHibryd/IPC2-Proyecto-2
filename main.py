@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from TDA.Quimicos import load_xml_file
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -17,7 +17,7 @@ class Application(tk.Frame):
         self.load_input_button = tk.Button(self)
         self.load_input_button["text"] = "Cargar archivo de entrada"
         self.load_input_button.pack(side="top")
-
+        self.load_input_button["command"] = load_xml_file 
         # Generar archivo de salida
         self.generate_output_button = tk.Button(self)
         self.generate_output_button["text"] = "Generar archivo de salida"
