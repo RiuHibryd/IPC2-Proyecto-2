@@ -1,5 +1,5 @@
 import tkinter as tk
-from TDA.Quimicos import Quimicos, load_xml_file
+from TDA.Quimicos import Lista, load_xml_file
 from tkinter import ttk
 class Application(tk.Frame):
     def __init__(self, master=None):
