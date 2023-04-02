@@ -1,6 +1,8 @@
 import tkinter as tk
-from TDA.Quimicos import Lista, load_xml_file
-from tkinter import ttk
+from TDA.Quimicos import Maquinas, load_xml_file
+from graphviz import Digraph
+import graphviz
+from PIL import ImageTk, Image
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -62,14 +64,43 @@ class Application(tk.Frame):
         self.view_machines_button = tk.Button(self.mach_frame)
         self.view_machines_button["text"] = "Ver maquinas"
         self.view_machines_button.pack(side="top")
+        self.view_machines_button["command"] = lambda: self.display_maquinas(Maquinas)
+
 
         # Ayuda
         self.help_button = tk.Button(self)
         self.help_button["text"] = "Ayudame"
         self.help_button.pack(side="bottom")
- 
+    def display_maquinas(self, maquinas):
+        # Create a new window
+        self.maquinas_root = tk.Toplevel(self.master)
+        self.maquinas_root.title("Máquinas")
 
+        # Create a string in the graphviz language that describes the graph
+        graphviz_string = "digraph G {\n"
+        for i, maquina in enumerate(maquinas):
+            graphviz_string += "\tM{} [label=\"{}\\n{}\"];\n".format(i, maquina['Nombre'], '\\n'.join(maquina['Elementos']))
+            if i > 0:
+                graphviz_string += f"\tM{i-1} -> M{i};\n"
+        graphviz_string += "}"
 
+        # Use the Graphviz module to display the graph directly in the popup window
+        graph = graphviz.Source(graphviz_string)
+        graph.format = "png"
+
+        # Convert the graph image to a Tkinter PhotoImage object
+        img = Image.open(io.BytesIO(graph.pipe())).convert('RGBA')
+        photo = ImageTk.PhotoImage(img)
+
+        # Create a label to display the graph image
+        self.graph_label = tk.Label(self.maquinas_root, image=photo, bg="white")
+        self.graph_label.image = photo
+        self.graph_label.pack()
+
+        # Add a scrollbar for horizontal scrolling
+        scrollbar = tk.Scrollbar(self.maquinas_root, orient="horizontal", command=self.graph_label.xview)
+        scrollbar.pack(side="bottom", fill="x")
+        self.graph_label.configure(xscrollcommand=scrollbar.set)
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
