@@ -40,10 +40,6 @@ class Application(tk.Frame):
         self.add_element_button = tk.Button(self.chem_frame)
         self.add_element_button["text"] = "Agregar elemento quimico"
         self.add_element_button.pack(side="top")
-        #Ver en tabla
-        self.add_element_button = tk.Button(self.chem_frame)
-        self.add_element_button["text"] = "Ver en tabla"
-        self.add_element_button.pack(side="top")
         # Manejo de compuestos frame
         self.comp_frame = tk.LabelFrame(self, text="Manejo de compuestos")
         self.comp_frame.pack(side="left")
