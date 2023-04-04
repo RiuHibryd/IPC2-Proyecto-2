@@ -2,6 +2,7 @@ import tkinter as tk
 from TDA.Quimicos import Maquinas, load_xml_file
 from graphviz import Digraph
 import graphviz
+import io
 from PIL import ImageTk, Image
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -78,8 +79,16 @@ class Application(tk.Frame):
 
         # Create a string in the graphviz language that describes the graph
         graphviz_string = "digraph G {\n"
+        graphviz_string += "\trankdir=LR;\n"
         for i, maquina in enumerate(maquinas):
-            graphviz_string += "\tM{} [label=\"{}\\n{}\"];\n".format(i, maquina['Nombre'], '\\n'.join(maquina['Elementos']))
+            graphviz_string += "\tM{} [shape=box, style=filled, color=lightgrey, label=<".format(i)
+            graphviz_string += "<table border='0' cellspacing='0'>"
+            graphviz_string += "<tr><td colspan='{}' bgcolor='black'></td></tr>".format(len(maquina['Elementos']) + 1)
+            graphviz_string += "<tr><td colspan='{}' bgcolor='grey' align='center'><font color='white'>{}</font></td></tr>".format(len(maquina['Elementos']) + 1, maquina['Nombre'])
+            for elemento in maquina['Elementos']:
+                graphviz_string += "<tr><td bgcolor='white' align='left'>{}</td>".format(elemento.data['Nombre'])
+                graphviz_string += "<td bgcolor='white' align='right'>{}</td></tr>".format(elemento['Cantidad'])
+            graphviz_string += "</table>>];\n"
             if i > 0:
                 graphviz_string += f"\tM{i-1} -> M{i};\n"
         graphviz_string += "}"
