@@ -111,12 +111,12 @@ class Application(tk.Frame):
         quimicos = self.controller.get_quimicos()
         table_model = self.quimicos_table.getModel()
 
-        # Clear any existing data from the table
+   
         table_model.clear()
 
-        # Add each quimico to the table
+    
         for quimico in quimicos:
-            # Convert the dictionary to a tuple before adding it to the table
+        
             row = tuple(quimico.values())
             table_model.addRow(row)
 root = tk.Tk()
