@@ -3,6 +3,10 @@ from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos
 from graphviz import Digraph
 import graphviz
 import io
+import tkinter.ttk as ttk
+from tkinter import *
+from tkintertable import TableCanvas, TableModel
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -37,7 +41,7 @@ class Application(tk.Frame):
         self.view_elements_button = tk.Button(self.chem_frame)
         self.view_elements_button["text"] = "Ver elementos quimicos por numero atomico"
         self.view_elements_button.pack(side="top")
-        
+        self.view_elements_button["command"] = lambda: self.display_quimicos()
         # Agregar elemento quimico
         self.add_element_button = tk.Button(self.chem_frame)
         self.add_element_button["text"] = "Agregar elemento quimico"
@@ -103,6 +107,22 @@ class Application(tk.Frame):
 
         # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
+    def display_quimicos(self):
+        # create a new Tkinter window
+        root = Tk()
+        root.title("Quimicos")
+
+        # create a TableModel object with the data from Quimicos
+        table_model = TableModel()
+        for quimico in Quimicos:
+            table_model.addRow(quimico)
+
+        # create a TableCanvas object to display the TableModel
+        table_canvas = TableCanvas(root, model=table_model)
+        table_canvas.show()
+
+        # start the Tkinter event loop
+        root.mainloop()
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
