@@ -5,7 +5,7 @@ import graphviz
 import io
 import tkinter.ttk as ttk
 from tkinter import *
-from tkintertable import TableCanvas, TableModel
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -41,7 +41,7 @@ class Application(tk.Frame):
         self.view_elements_button = tk.Button(self.chem_frame)
         self.view_elements_button["text"] = "Ver elementos quimicos por numero atomico"
         self.view_elements_button.pack(side="top")
-        self.view_elements_button["command"] = lambda: self.display_quimicos()
+   
         # Agregar elemento quimico
         self.add_element_button = tk.Button(self.chem_frame)
         self.add_element_button["text"] = "Agregar elemento quimico"
@@ -107,18 +107,7 @@ class Application(tk.Frame):
 
         # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
-    def display_quimicos(self):
-        quimicos = self.controller.get_quimicos()
-        table_model = self.quimicos_table.getModel()
 
-   
-        table_model.clear()
-
-    
-        for quimico in quimicos:
-        
-            row = tuple(quimico.values())
-            table_model.addRow(row)
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
