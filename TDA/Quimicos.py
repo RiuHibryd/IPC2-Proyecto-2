@@ -64,7 +64,7 @@ def load_xml_file():
             numeroAtomico = element.find("numeroAtomico").text
             simbolo = element.find("simbolo").text
             nombre = element.find("nombreElemento").text
-            if nombre not in [q["Nombre"] for q in Quimicos]:   
+            if nombre not in [q["Nombre"] for q in Quimicos]and simbolo not in [q["Simbolo"] for q in Quimicos] and numeroAtomico not in [q["NumeroAtomico"] for q in Quimicos]:   
              Quimicos.insert({"NumeroAtomico": numeroAtomico, "Simbolo": simbolo, "Nombre": nombre})
 
         for maquina in root.findall("listaMaquinas/Maquina"):

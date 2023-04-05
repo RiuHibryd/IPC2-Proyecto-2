@@ -1,5 +1,5 @@
 import tkinter as tk
-from TDA.Quimicos import Maquinas, load_xml_file
+from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos
 from graphviz import Digraph
 import graphviz
 import io
@@ -51,7 +51,7 @@ class Application(tk.Frame):
         self.view_compounds_button = tk.Button(self.comp_frame)
         self.view_compounds_button["text"] = "Compuestos y sus formulas"
         self.view_compounds_button.pack(side="top")
-
+        self.view_compounds_button["command"] = lambda: self.display_compounds()
         # Analizar compuesto
         self.analyze_compound_button = tk.Button(self.comp_frame)
         self.analyze_compound_button["text"] = "Analizar compuesto"
@@ -65,51 +65,45 @@ class Application(tk.Frame):
         self.view_machines_button = tk.Button(self.mach_frame)
         self.view_machines_button["text"] = "Ver maquinas"
         self.view_machines_button.pack(side="top")
-        self.view_machines_button["command"] = lambda: self.display_maquinas(Maquinas)
+        self.view_machines_button["command"] = lambda: self.display_maquinas()
 
 
         # Ayuda
         self.help_button = tk.Button(self)
         self.help_button["text"] = "Ayudame"
         self.help_button.pack(side="bottom")
-    def display_maquinas(self, maquinas):
-        # Create a new window
-        self.maquinas_root = tk.Toplevel(self.master)
-        self.maquinas_root.title("Máquinas")
+    def display_maquinas(self):
+        # crear una nueva ventana
+        machines_window = tk.Toplevel(self.master)
+        for machine in Maquinas:
+            machine_frame = tk.Frame(machines_window)
+            machine_frame.pack()
+            # desplegar el nombre de la maquina
+            name_label = tk.Label(machine_frame, text=machine["Nombre"])
+            name_label.pack()
+            # desplegar la formula de la maquina
+            elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join(machine["Elementos"]))
+            elements_label.pack()
+       
+    def display_compounds(self):
+        # crear una nueva ventana
+        compounds_window = tk.Toplevel(self.master)
 
-        # Create a string in the graphviz language that describes the graph
-        graphviz_string = "digraph G {\n"
-        graphviz_string += "\trankdir=LR;\n"
-        for i, maquina in enumerate(maquinas):
-            graphviz_string += "\tM{} [shape=box, style=filled, color=lightgrey, label=<".format(i)
-            graphviz_string += "<table border='0' cellspacing='0'>"
-            graphviz_string += "<tr><td colspan='{}' bgcolor='black'></td></tr>".format(len(maquina['Elementos']) + 1)
-            graphviz_string += "<tr><td colspan='{}' bgcolor='grey' align='center'><font color='white'>{}</font></td></tr>".format(len(maquina['Elementos']) + 1, maquina['Nombre'])
-            for elemento in maquina['Elementos']:
-                graphviz_string += "<tr><td bgcolor='white' align='left'>{}</td>".format(elemento.data['Nombre'])
-                graphviz_string += "<td bgcolor='white' align='right'>{}</td></tr>".format(elemento['Cantidad'])
-            graphviz_string += "</table>>];\n"
-            if i > 0:
-                graphviz_string += f"\tM{i-1} -> M{i};\n"
-        graphviz_string += "}"
+        # loop entre los compuestos y mostrarlos en la ventana
+        for compound in Compuestos:
+            compound_frame = tk.Frame(compounds_window)
+            compound_frame.pack()
 
-        # Use the Graphviz module to display the graph directly in the popup window
-        graph = graphviz.Source(graphviz_string)
-        graph.format = "png"
+            # desplegar el nombre del compuesto
+            name_label = tk.Label(compound_frame, text=compound["Nombre"])
+            name_label.pack()
 
-        # Convert the graph image to a Tkinter PhotoImage object
-        img = Image.open(io.BytesIO(graph.pipe())).convert('RGBA')
-        photo = ImageTk.PhotoImage(img)
+            # desplegar la formula del compuesto
+            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join(compound["Elementos"]))
+            elements_label.pack()
 
-        # Create a label to display the graph image
-        self.graph_label = tk.Label(self.maquinas_root, image=photo, bg="white")
-        self.graph_label.image = photo
-        self.graph_label.pack()
-
-        # Add a scrollbar for horizontal scrolling
-        scrollbar = tk.Scrollbar(self.maquinas_root, orient="horizontal", command=self.graph_label.xview)
-        scrollbar.pack(side="bottom", fill="x")
-        self.graph_label.configure(xscrollcommand=scrollbar.set)
+        # poner el tamaño de la ventana
+        compounds_window.geometry("400x400")
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
