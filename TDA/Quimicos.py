@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from tkinter import filedialog
-
+from tkinter import *
+from tkinter import messagebox
 class Nodo:
     def __init__(self, data):
         self.data = data
@@ -64,7 +65,7 @@ def load_xml_file():
             numeroAtomico = element.find("numeroAtomico").text
             simbolo = element.find("simbolo").text
             nombre = element.find("nombreElemento").text
-            if nombre not in [q["Nombre"] for q in Quimicos]and simbolo not in [q["Simbolo"] for q in Quimicos] and numeroAtomico not in [q["NumeroAtomico"] for q in Quimicos]:   
+            if nombre not in [q["Nombre"] for q in Quimicos]and simbolo not in [q["Simbolo"] for q in Quimicos] and numeroAtomico not in [q["NumeroAtomico"] for q in Quimicos]: 
              Quimicos.insert({"NumeroAtomico": numeroAtomico, "Simbolo": simbolo, "Nombre": nombre})
 
         for maquina in root.findall("listaMaquinas/Maquina"):
@@ -74,7 +75,11 @@ def load_xml_file():
             elementos = [e.text for pin in maquina.findall("pin") for e in pin.find("elementos").findall("elemento")]
             num_pines = len(maquina.findall("pin"))
             if nombre not in [m["Nombre"] for m in Maquinas]:
-                Maquinas.insert({"Nombre": nombre, "NumeroPines": numeroPines, "NumeroElementos": numeroElementos, "Elementos": elementos, "Numero pines": num_pines})
+                if numeroPines == str(num_pines):
+                 Maquinas.insert({"Nombre": nombre, "NumeroPines": numeroPines, "NumeroElementos": numeroElementos, "Elementos": elementos, "Numero pines": num_pines})
+                else:
+                     messagebox.showerror("Error", "Error, la cantidad de pines no concuerda")
+                
 
         for compuesto in root.findall("listaCompuestos/compuesto"):
            nombre = compuesto.find("nombre").text
@@ -87,13 +92,4 @@ def load_xml_file():
     Quimicos.print_list()
     Maquinas.print_list()
     Compuestos.print_list()
-    if len(Maquinas.head.data["Elementos"]) > 0:
-        print("Maquinas has elements")
-    else:
-        print("Maquinas does not have elements")
-
-    if len(Compuestos.head.data["Elementos"]) > 0:
-        print("Compuestos has elements")
-    else:
-        print("Compuestos does not have elements")
     

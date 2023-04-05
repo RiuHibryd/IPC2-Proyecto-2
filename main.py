@@ -3,7 +3,6 @@ from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos
 from graphviz import Digraph
 import graphviz
 import io
-from PIL import ImageTk, Image
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
