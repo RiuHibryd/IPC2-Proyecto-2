@@ -108,21 +108,17 @@ class Application(tk.Frame):
         # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
     def display_quimicos(self):
-        # create a new Tkinter window
-        root = Tk()
-        root.title("Quimicos")
+        quimicos = self.controller.get_quimicos()
+        table_model = self.quimicos_table.getModel()
 
-        # create a TableModel object with the data from Quimicos
-        table_model = TableModel()
-        for quimico in Quimicos:
-            table_model.addRow(quimico)
+        # Clear any existing data from the table
+        table_model.clear()
 
-        # create a TableCanvas object to display the TableModel
-        table_canvas = TableCanvas(root, model=table_model)
-        table_canvas.show()
-
-        # start the Tkinter event loop
-        root.mainloop()
+        # Add each quimico to the table
+        for quimico in quimicos:
+            # Convert the dictionary to a tuple before adding it to the table
+            row = tuple(quimico.values())
+            table_model.addRow(row)
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
