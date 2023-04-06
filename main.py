@@ -144,7 +144,7 @@ class Application(tk.Frame):
         #Crear boton
 
         add_chemical_button = tk.Button(add_chemical_window, text="Agregar elemento quimico", command=lambda: self.add_chemical(atomic_number_entry.get(), atomic_symbol_entry.get(), chemical_name_entry.get()))
-        add_chemical_button.grid(row=3, column=0, columnspan=2)
+        add_chemical_button.grid(row=4, column=0, columnspan=2)
     def add_chemical(self, atomic_number, atomic_symbol, chemical_name):
         
         for chemical in Quimicos:
@@ -153,7 +153,7 @@ class Application(tk.Frame):
                 return
         
         #Agregar elemento a la lista
-        Quimicos.append({
+        Quimicos.insert({
             "NumeroAtomico": atomic_number,
             "Simbolo": atomic_symbol,
             "Nombre": chemical_name
