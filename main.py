@@ -111,6 +111,7 @@ class Application(tk.Frame):
         # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
     def display_elements(self):
+        Quimicos.bubble_sorting()
         elementos_window = tk.Toplevel(self.master)
         columns = ('Numero atomico', 'Simbolo', 'Nombre')
         tree = ttk.Treeview(elementos_window, columns=columns, show='headings')
@@ -158,6 +159,7 @@ class Application(tk.Frame):
             "Simbolo": atomic_symbol,
             "Nombre": chemical_name
         })
+       
         #Agregar elemento a la base de datos
 
 root = tk.Tk()
