@@ -79,39 +79,26 @@ class Application(tk.Frame):
         self.help_button["text"] = "Ayudame"
         self.help_button.pack(side="bottom")
     def display_maquinas(self):
-        # crear una nueva ventana
         machines_window = tk.Toplevel(self.master)
-        for machine in Maquinas:
+        for machine in Maquinas.maquinas:
             machine_frame = tk.Frame(machines_window)
             machine_frame.pack()
-            # desplegar el nombre de la maquina
-            name_label = tk.Label(machine_frame, text=machine["Nombre"])
+            name_label = tk.Label(machine_frame, text=machine.nombre)
             name_label.pack()
-            # desplegar la formula de la maquina
-            elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join(machine["Elementos"]))
+            elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join(machine.elementos))
             elements_label.pack()
        
     def display_compounds(self):
-        # crear una nueva ventana
         compounds_window = tk.Toplevel(self.master)
-
-        # loop entre los compuestos y mostrarlos en la ventana
-        for compound in Compuestos:
+        for compound in Compuestos.compuestos:
             compound_frame = tk.Frame(compounds_window)
             compound_frame.pack()
-
-            # desplegar el nombre del compuesto
-            name_label = tk.Label(compound_frame, text=compound["Nombre"])
+            name_label = tk.Label(compound_frame, text=compound.nombre)
             name_label.pack()
-
-            # desplegar la formula del compuesto
-            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join(compound["Elementos"]))
+            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join(compound.elementos))
             elements_label.pack()
-
-        # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
     def display_elements(self):
-        
         elementos_window = tk.Toplevel(self.master)
         columns = ('Numero atomico', 'Simbolo', 'Nombre')
         tree = ttk.Treeview(elementos_window, columns=columns, show='headings')
@@ -119,10 +106,9 @@ class Application(tk.Frame):
         tree.heading('Simbolo', text='Simbolo')
         tree.heading('Numero atomico', text='Numero atomico')
         tree.pack()
-        #Insertar elementos
 
-        for element in Quimicos:
-            tree.insert('', 'end', values=(element["NumeroAtomico"], element["Simbolo"], element["Nombre"]))
+        for element in Quimicos.get_quimicos():
+            tree.insert('', 'end', values=(element.numero_atomico, element.simbolo, element.nombre))
         elementos_window.geometry("610x280")
     def add_Chemical(self):
         add_chemical_window = tk.Toplevel(self.master)
@@ -147,11 +133,13 @@ class Application(tk.Frame):
         add_chemical_button = tk.Button(add_chemical_window, text="Agregar elemento quimico", command=lambda: self.add_chemical(atomic_number_entry.get(), atomic_symbol_entry.get(), chemical_name_entry.get()))
         add_chemical_button.grid(row=4, column=0, columnspan=2)
     def add_chemical(self, atomic_number, atomic_symbol, chemical_name):
-        
-        for chemical in Quimicos:
-            if chemical["NumeroAtomico"] == atomic_number or chemical["Simbolo"] == atomic_symbol or chemical["Nombre"] == chemical_name:
-                messagebox.showerror("Error", "El elemento quimico ya existe")
+        for chemical in Quimicos.quimicos:
+            if chemical.numero_atomico == atomic_number or chemical.simbolo == atomic_symbol or chemical.nombre == chemical_name:
+                messagebox.showerror("Error", "El elemento químico ya existe")
                 return
+
+        new_chemical = Quimico(atomic_number, atomic_symbol, chemical_name)
+        Quimicos.add(new_chemical)
         
         #Agregar elemento a la lista
         Quimicos.insert({
