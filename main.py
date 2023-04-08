@@ -42,7 +42,7 @@ class Application(tk.Frame):
         self.view_elements_button = tk.Button(self.chem_frame)
         self.view_elements_button["text"] = "Ver elementos quimicos por numero atomico"
         self.view_elements_button.pack(side="top")
-        self.view_elements_button["command"] = lambda: self.display_elements()
+        self.view_elements_button["command"] = lambda: (Quimicos.bubble_sorting ,self.display_elements())
    
         # Agregar elemento quimico
         self.add_element_button = tk.Button(self.chem_frame)
@@ -111,7 +111,7 @@ class Application(tk.Frame):
         # poner el tamaño de la ventana
         compounds_window.geometry("400x400")
     def display_elements(self):
-        Quimicos.bubble_sorting()
+        
         elementos_window = tk.Toplevel(self.master)
         columns = ('Numero atomico', 'Simbolo', 'Nombre')
         tree = ttk.Treeview(elementos_window, columns=columns, show='headings')
@@ -161,7 +161,7 @@ class Application(tk.Frame):
         })
        
         #Agregar elemento a la base de datos
-
+    
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
