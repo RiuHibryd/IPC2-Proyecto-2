@@ -64,6 +64,7 @@ class Application(tk.Frame):
         self.analyze_compound_button = tk.Button(self.comp_frame)
         self.analyze_compound_button["text"] = "Analizar compuesto"
         self.analyze_compound_button.pack(side="top")
+        self.analyze_compound_button["command"] = lambda: self.display_compound_analisys()
 
         # Manejo de maquinas frame
         self.mach_frame = tk.LabelFrame(self, text="Manejo de maquinas")
@@ -146,13 +147,56 @@ class Application(tk.Frame):
 
         new_chemical = ElementoQuimico(atomic_number, atomic_symbol, chemical_name)
         Quimicos.insert(new_chemical)
-        
-     
-     
-        
-       
-        #Agregar elemento a la base de datos
     
+    def display_compound_analisys(self):
+        display_compound_analisys_window = tk.Toplevel(self.master)
+        #Crear campos
+        compound_name_label = tk.Label(display_compound_analisys_window, text="Nombre del compuesto")
+        compound_name_label.grid(row=0, column=0)
+        compound_name_entry = tk.Entry(display_compound_analisys_window)
+        compound_name_entry.grid(row=0, column=1)
+        #Agregar elemento a la base de datos
+        add_compound_button = tk.Button(display_compound_analisys_window, text="Analizar compuesto", command=lambda: self.analyze_compound(compound_name_entry.get()))
+        add_compound_button.grid(row=4, column=0, columnspan=2)
+    def analyze_compound(self, compound_name):
+        found = False
+        for compound in Compuestos:
+            if compound.nombre == compound_name:
+                found = True
+                analyze_compound_window = tk.Toplevel(self.master)
+                compound_frame = tk.Frame(analyze_compound_window)
+                compound_frame.pack()
+                name_label = tk.Label(compound_frame, text=compound.nombre)
+                name_label.pack()
+                elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in compound.elementos]))
+                elements_label.pack()
+                for machine in Maquinas:
+                    name_label = tk.Label(compound_frame, text=machine.nombre)
+                    name_label.pack()
+                    for pin in machine.pines:
+                        elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos]))
+                        elements_label.pack()
+                add_analisys_button = tk.Button(analyze_compound_window, text="Analizar Maquina", command=lambda: self.add_analisys(compound))
+                add_analisys_button.pack()
+                break
+        if not found:
+            messagebox.showerror("Error", "El compuesto no existe")
+    def add_analisys(self, compound):
+        for machine in Maquinas:
+            can_produce = True
+            for element in compound.elementos:
+                if not any([element in pin.elementos for pin in machine.pines]):
+                    can_produce = False
+                    break
+            if can_produce:
+              
+                messagebox.showinfo("Exito", "El compuesto se puede producir en la maquina " + machine.nombre)
+             
+                return
+        messagebox.showinfo("Error", "El compuesto no se puede producir en ninguna maquina")
+
+
+   
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()

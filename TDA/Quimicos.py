@@ -127,7 +127,7 @@ def load_xml_file():
                             break
                 # Chorradas criminales que hacen que funke
                 pines.insert(Pin(None, len(elementos), elementos))
-            if nombre not in [m.data.nombre for m in Maquinas]:
+            if nombre not in [m.nombre for m in Maquinas]:
                 Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
 
    
