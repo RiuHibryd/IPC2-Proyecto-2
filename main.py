@@ -1,5 +1,7 @@
 import tkinter as tk
-from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos
+from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos, Lista
+import TDA.Quimicos
+from TDA.Quimicos import *
 from graphviz import Digraph
 import graphviz
 import io
@@ -42,7 +44,7 @@ class Application(tk.Frame):
         self.view_elements_button = tk.Button(self.chem_frame)
         self.view_elements_button["text"] = "Ver elementos quimicos por numero atomico"
         self.view_elements_button.pack(side="top")
-        self.view_elements_button["command"] = lambda: (Quimicos.bubble_sorting ,self.display_elements())
+        self.view_elements_button["command"] = lambda: (self.display_elements())
    
         # Agregar elemento quimico
         self.add_element_button = tk.Button(self.chem_frame)
@@ -80,22 +82,26 @@ class Application(tk.Frame):
         self.help_button.pack(side="bottom")
     def display_maquinas(self):
         machines_window = tk.Toplevel(self.master)
-        for machine in Maquinas.maquinas:
+        for machine in Maquinas:
             machine_frame = tk.Frame(machines_window)
             machine_frame.pack()
             name_label = tk.Label(machine_frame, text=machine.nombre)
             name_label.pack()
-            elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join(machine.elementos))
-            elements_label.pack()
-       
+            for pin in machine.pines:
+                if len(pin.elementos) == 0:
+                    elements_label = tk.Label(machine_frame, text="No elements found.")
+                else:
+                    elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos]))
+                elements_label.pack()
+        machines_window.geometry("400x400")
     def display_compounds(self):
         compounds_window = tk.Toplevel(self.master)
-        for compound in Compuestos.compuestos:
+        for compound in Compuestos:
             compound_frame = tk.Frame(compounds_window)
             compound_frame.pack()
             name_label = tk.Label(compound_frame, text=compound.nombre)
             name_label.pack()
-            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join(compound.elementos))
+            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in compound.elementos]))
             elements_label.pack()
         compounds_window.geometry("400x400")
     def display_elements(self):
@@ -107,8 +113,8 @@ class Application(tk.Frame):
         tree.heading('Numero atomico', text='Numero atomico')
         tree.pack()
 
-        for element in Quimicos.get_quimicos():
-            tree.insert('', 'end', values=(element.numero_atomico, element.simbolo, element.nombre))
+        for element in Quimicos:  # Iterate over Quimicos directly
+            tree.insert('', 'end', values=(element.numeroAtomico, element.simbolo, element.nombre))
         elementos_window.geometry("610x280")
     def add_Chemical(self):
         add_chemical_window = tk.Toplevel(self.master)
@@ -133,20 +139,17 @@ class Application(tk.Frame):
         add_chemical_button = tk.Button(add_chemical_window, text="Agregar elemento quimico", command=lambda: self.add_chemical(atomic_number_entry.get(), atomic_symbol_entry.get(), chemical_name_entry.get()))
         add_chemical_button.grid(row=4, column=0, columnspan=2)
     def add_chemical(self, atomic_number, atomic_symbol, chemical_name):
-        for chemical in Quimicos.quimicos:
-            if chemical.numero_atomico == atomic_number or chemical.simbolo == atomic_symbol or chemical.nombre == chemical_name:
+        for chemical in Quimicos:
+            if chemical.numeroAtomico == atomic_number or chemical.simbolo == atomic_symbol or chemical.nombre == chemical_name:
                 messagebox.showerror("Error", "El elemento químico ya existe")
                 return
 
-        new_chemical = Quimico(atomic_number, atomic_symbol, chemical_name)
-        Quimicos.add(new_chemical)
+        new_chemical = ElementoQuimico(atomic_number, atomic_symbol, chemical_name)
+        Quimicos.insert(new_chemical)
         
-        #Agregar elemento a la lista
-        Quimicos.insert({
-            "NumeroAtomico": atomic_number,
-            "Simbolo": atomic_symbol,
-            "Nombre": chemical_name
-        })
+     
+     
+        
        
         #Agregar elemento a la base de datos
     

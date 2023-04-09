@@ -13,16 +13,19 @@ class ElementoQuimico:
         self.simbolo = simbolo
         self.nombre = nombre
     def __str__(self):
-        return f"{self.nombre} ({self.simbolo}), Atomic Number: {self.numeroAtomico}"
+        return "Numero atomico: " + str(self.numeroAtomico) + " Simbolo: " + self.simbolo + " Nombre: " + self.nombre
 class Compuesto:
     def __init__(self, nombre=None, elementos=None):
         self.nombre = nombre
         self.elementos = elementos
+    def __str__(self):
+        elements_str = ", ".join([elemento.simbolo for elemento in self.elementos])
+        return "Nombre: " + self.nombre + " Elementos: " + elements_str
 class Pin:
     def __init__(self, nombre=None, numeroPines=None, elementos=None):
         self.nombre = nombre
         self.numeroPines = numeroPines
-        self.elementos = elementos
+        self.elementos = elementos if elementos is not None else Lista()
 
 class Maquina:
     def __init__(self, nombre=None, numeroPines=None, numeroElementos=None, pines=None, numeroPines2=None):
@@ -32,7 +35,7 @@ class Maquina:
         self.pines = pines
         self.numeroPines2 = numeroPines2
     def __str__(self):
-        return f"Maquina: {self.nombre}, Numero de Pines: {self.numeroPines}, Numero de Elementos: {self.numeroElementos}"
+        return "Nombre: " + self.nombre + " Numero de pines: " + str(self.numeroPines) + " Numero de elementos: " + str(self.numeroElementos) + " Pines: " + str(self.pines)
 class Lista:
     def __init__(self):
         self.head = None
@@ -109,50 +112,41 @@ def load_xml_file():
 
 
 
+       
         for maquina in root.findall("listaMaquinas/Maquina"):
             nombre = maquina.find("nombre").text
             numeroPines = maquina.find("numeroPines").text
             numeroElementos = maquina.find("numeroElementos").text
-            num_pines = len(maquina.findall("pin"))
             pines = Lista()
             for pin in maquina.findall("pin"):
                 elementos = Lista()
                 for e in pin.findall("elementos/elemento"):
-                    elemento = Quimicos.head
-                    while elemento is not None:
-                        print("Elemento:", elemento.data.nombre) # Debugging line
-                        if elemento.data.nombre == e.text:
-                            elementos.insert(elemento.data)
+                    for elemento in Quimicos:
+                        if elemento.simbolo == e.text:
+                            elementos.insert(elemento)
                             break
-                        elemento = elemento.next
-                        nombre = pin.attrib.get("nombre", None)  # Get the 'nombre' attribute, use None if not present
-                        numeroPines = pin.attrib.get("numeroPines", None)  # Get the 'numeroPines' attribute, use None if not present
-                        pines.insert(Pin(nombre, len(elementos), elementos))
+                # Chorradas criminales que hacen que funke
+                pines.insert(Pin(None, len(elementos), elementos))
             if nombre not in [m.data.nombre for m in Maquinas]:
-                if numeroPines == str(num_pines):
-                    Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
-                else:
-                    messagebox.showerror("Error", "Error, la cantidad de pines no concuerda")
+                Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
+
    
 
         for compuesto in root.findall("listaCompuestos/compuesto"):
             nombre = compuesto.find("nombre").text
             elementos = Lista()
             for e in compuesto.findall("elementos/elemento"):
-                elemento = Quimicos.head
-                while elemento is not None:
-                    if elemento.data.nombre == e.text:
-                        elementos.insert(elemento.data)
+                for elemento in Quimicos:
+                    if elemento.simbolo == e.text:
+                        elementos.insert(elemento)
                         break
-                    elemento = elemento.next
-                if nombre not in [c.data.nombre for c in Compuestos]:
-                 Compuestos.insert(Compuesto(nombre, elementos))
+            if nombre not in [c.nombre for c in Compuestos]:
+                Compuestos.insert(Compuesto(nombre, elementos))
            
     except Exception as e:
         print("Error loading XML file:", e)
 
-
+  
         # Print the contents of each list for verification
-
 
     
