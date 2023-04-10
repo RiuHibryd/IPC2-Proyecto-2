@@ -1,5 +1,5 @@
 import tkinter as tk
-from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos, Lista
+from TDA.Quimicos import Maquinas, load_xml_file, Compuestos, Quimicos, Lista, ElementoQuimico, Compuesto, Maquina
 import TDA.Quimicos
 from TDA.Quimicos import *
 from graphviz import Digraph
@@ -8,8 +8,11 @@ import io
 import tkinter.ttk as ttk
 from tkinter import *
 from tkinter import messagebox
+from PIL import Image, ImageTk
+import tempfile
+import time
 
-
+#Codigo hecho por Riu
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -18,7 +21,7 @@ class Application(tk.Frame):
         self.create_widgets()
 
 
-
+    # Funcion para crear lainterfaz grafica
     def create_widgets(self):
         # Boton de inicializacion
         self.init_button = tk.Button(self)
@@ -81,7 +84,8 @@ class Application(tk.Frame):
         self.help_button = tk.Button(self)
         self.help_button["text"] = "Ayudame"
         self.help_button.pack(side="bottom")
-    def display_maquinas(self):
+    
+    def display_maquinas(self):  #Despliega las maquinas y sus elementos
         machines_window = tk.Toplevel(self.master)
         for machine in Maquinas:
             machine_frame = tk.Frame(machines_window)
@@ -92,7 +96,7 @@ class Application(tk.Frame):
                 if len(pin.elementos) == 0:
                     elements_label = tk.Label(machine_frame, text="No elements found.")
                 else:
-                    elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos]))
+                    elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos])) #Despliega los elementos de la maquina
                 elements_label.pack()
         machines_window.geometry("400x400")
     def display_compounds(self):
@@ -182,20 +186,64 @@ class Application(tk.Frame):
         if not found:
             messagebox.showerror("Error", "El compuesto no existe")
     def add_analisys(self, compound):
+        compound_name = self.compuesto_entry.get()
+        compound = None
+        for c in Compuestos:
+            if c.nombre == compound_name:
+                compound = c
+                break
+
+        if compound is None:
+            messagebox.showerror("Error", "Compuesto no encontrado.")
+            return
+
+        images = self.display_animated_process(compound)
+        graph_label = self.graph_labels[self.current_graph]
+        for image in images:
+            photo = ImageTk.PhotoImage(image)
+            graph_label.configure(image=photo)
+            graph_label.image = photo
+            graph_label.update()
+            time.sleep(1)
+
+            elements_str = ", ".join(['<FONT{0}>{1}</FONT>'.format(" COLOR=\"green\"" if element in compound.elementos else "", element.simbolo) for element in pin.elementos])
+        self.output_text.insert(tk.END, f"{compound.nombre}: {elements_str}\n")
+        self.output_text.see(tk.END)
+
+        self.current_graph = (self.current_graph + 1) % len(self.graph_labels)
+
+# ...
+
+    def visualize_process(self, compound, selected_element=None):  #Visualizar proceso
+        g = Digraph('G', filename='process.gv', format='png')
+        g.attr(rankdir='LR', size='8,5')
+
         for machine in Maquinas:
-            can_produce = True
-            for element in compound.elementos:
-                if not any([element in pin.elementos for pin in machine.pines]):
-                    can_produce = False
-                    break
-            if can_produce:
-              
-                messagebox.showinfo("Exito", "El compuesto se puede producir en la maquina " + machine.nombre)
-             
-                return
-        messagebox.showinfo("Error", "El compuesto no se puede producir en ninguna maquina")
+            # Create a table for each machine
+            table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                        <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
+            for pin in machine.pines:
+                elements_str = ", ".join(['<FONT' + ( ' COLOR="blue"' if element == selected_element else ' COLOR="green"' if element in compound.elementos else '') + '>' + element.simbolo + '</FONT>' for element in pin.elementos])
+                table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
 
+            table += "</TABLE>>"
+
+            g.node(machine.nombre, label=table, shape='plaintext')
+
+        return g.pipe(format='png')
+
+    def display_animated_process(self, compound):
+        images = Lista()
+
+        for machine in Maquinas:
+            for pin in machine.pines:
+                for element in pin.elementos:
+                    image_data = self.visualize_process(compound, selected_element=element)
+                    image = Image.open(io.BytesIO(image_data))
+                    images.insert(image)
+
+        return images
    
 root = tk.Tk()
 app = Application(master=root)

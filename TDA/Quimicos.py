@@ -26,7 +26,9 @@ class Pin:
         self.nombre = nombre
         self.numeroPines = numeroPines
         self.elementos = elementos if elementos is not None else Lista()
-
+    def __str__(self):
+        elements_str = ", ".join([elemento.simbolo for elemento in self.elementos])
+        return "Nombre: " + self.nombre + " Numero de pines: " + str(self.numeroPines) + " Elementos: " + elements_str
 class Maquina:
     def __init__(self, nombre=None, numeroPines=None, numeroElementos=None, pines=None, numeroPines2=None):
         self.nombre = nombre
@@ -149,4 +151,4 @@ def load_xml_file():
   
         # Print the contents of each list for verification
 
-    
+    Maquinas.print_list()
