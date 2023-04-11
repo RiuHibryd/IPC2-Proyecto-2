@@ -189,53 +189,63 @@ class Application(tk.Frame):
     def add_analisys(self, compound):
         images = self.display_animated_process(compound)
 
-        # Create a new window to display the image
+        # Crear una nueva ventana para mostrar la imagen
         image_window = tk.Toplevel(self.master)
-        # Create a label to display the image inside the new window
+        # Crear un label para mostrar la imagen
         image_label = tk.Label(image_window)
         image_label.pack()
 
         for image in images:
             photo = ImageTk.PhotoImage(image)
+            image_label.image = photo  # Guardar la imagen
             image_label.configure(image=photo)
-            image_label.image = photo
             image_label.update()
             time.sleep(1)
 
         elements_str = ", ".join([element.simbolo for element in compound.elementos])
         self.output_text.insert(tk.END, f"{compound.nombre}: {elements_str}\n")
         self.output_text.see(tk.END)
-# ...
 
-    def visualize_process(self, compound, selected_element=None):  # Visualizar proceso
-        g = Digraph('G', filename='process.gv', format='png')
-        g.attr(rankdir='LR', size='8,5')
+    def visualize_process(self, compound, current_pin_index, current_element_index):
+            g = Digraph('G', filename='process.gv', format='png')
+            g.attr(rankdir='LR', size='8,5')
 
-        for machine in Maquinas:
-            # Crear una tabla para cada maquina
-            table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
-                        <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
+            for machine in Maquinas:
+                # Crear una tabla para cada maquina
+                table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                            <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
-            for pin in machine.pines:
-                elements_str = ", ".join(['<FONT' + (' COLOR="blue"' if element == selected_element else ' COLOR="green"' if element in compound.elementos else '') + '>' + element.simbolo + '</FONT>' for element in pin.elementos])
-                table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
+                for i, pin in enumerate(machine.pines):
+                    elements_str = ""
+                    for j, element in enumerate(pin.elementos):
+                        color = ""
+                        if i == current_pin_index and j == current_element_index:
+                            color = ' COLOR="blue"'
+                        elif element in compound.elementos:
+                            color = ' COLOR="green"'
+                        elements_str += '<FONT' + color + '>' + element.simbolo + '</FONT>, '
+                    elements_str = elements_str.rstrip(', ')
 
-            table += "</TABLE>>"
+                    table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
 
-            g.node(machine.nombre, label=table, shape='plaintext')
+                table += "</TABLE>>"
 
-        return g.pipe(format='png')
+                g.node(machine.nombre, label=table, shape='plaintext')
+
+            return g.pipe(format='png')
 
     def display_animated_process(self, compound):
             images = Lista()
-
-            for element in compound.elementos:
-                image_data = self.visualize_process(compound, selected_element=element)
-                image = Image.open(io.BytesIO(image_data))
-                images.insert(image)
+            machine = Maquinas.head.data
+            delay = 1  # Adjust this value to control the animation speed
+            for pin_index, pin in enumerate(machine.pines):
+                for element_index, _ in enumerate(pin.elementos):
+                    image_data = self.visualize_process(compound, pin_index, element_index)
+                    image = Image.open(io.BytesIO(image_data))
+                    images.insert(image)
+                    time.sleep(delay)
 
             return images
-   
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
