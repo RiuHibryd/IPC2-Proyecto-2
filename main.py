@@ -19,7 +19,8 @@ class Application(tk.Frame):
         self.master = master
         self.pack()
         self.create_widgets()
-
+        self.output_text = tk.Text(self, wrap=tk.WORD, width=10, height=10 )
+        self.output_text.pack()
 
     # Funcion para crear lainterfaz grafica
     def create_widgets(self):
@@ -118,7 +119,7 @@ class Application(tk.Frame):
         tree.heading('Numero atomico', text='Numero atomico')
         tree.pack()
 
-        for element in Quimicos:  # Iterate over Quimicos directly
+        for element in Quimicos:  # Itera sobre los elementos quimicos
             tree.insert('', 'end', values=(element.numeroAtomico, element.simbolo, element.nombre))
         elementos_window.geometry("610x280")
     def add_Chemical(self):
@@ -186,45 +187,37 @@ class Application(tk.Frame):
         if not found:
             messagebox.showerror("Error", "El compuesto no existe")
     def add_analisys(self, compound):
-        compound_name = self.compuesto_entry.get()
-        compound = None
-        for c in Compuestos:
-            if c.nombre == compound_name:
-                compound = c
-                break
-
-        if compound is None:
-            messagebox.showerror("Error", "Compuesto no encontrado.")
-            return
-
         images = self.display_animated_process(compound)
-        graph_label = self.graph_labels[self.current_graph]
+
+        # Create a new window to display the image
+        image_window = tk.Toplevel(self.master)
+        # Create a label to display the image inside the new window
+        image_label = tk.Label(image_window)
+        image_label.pack()
+
         for image in images:
             photo = ImageTk.PhotoImage(image)
-            graph_label.configure(image=photo)
-            graph_label.image = photo
-            graph_label.update()
+            image_label.configure(image=photo)
+            image_label.image = photo
+            image_label.update()
             time.sleep(1)
 
-            elements_str = ", ".join(['<FONT{0}>{1}</FONT>'.format(" COLOR=\"green\"" if element in compound.elementos else "", element.simbolo) for element in pin.elementos])
+        elements_str = ", ".join([element.simbolo for element in compound.elementos])
         self.output_text.insert(tk.END, f"{compound.nombre}: {elements_str}\n")
         self.output_text.see(tk.END)
-
-        self.current_graph = (self.current_graph + 1) % len(self.graph_labels)
-
 # ...
 
-    def visualize_process(self, compound, selected_element=None):  #Visualizar proceso
+    def visualize_process(self, compound, selected_element=None):  # Visualizar proceso
         g = Digraph('G', filename='process.gv', format='png')
         g.attr(rankdir='LR', size='8,5')
 
         for machine in Maquinas:
-            # Create a table for each machine
+            # Crear una tabla para cada maquina
             table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
                         <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
             for pin in machine.pines:
-                elements_str = ", ".join(['<FONT' + ( ' COLOR="blue"' if element == selected_element else ' COLOR="green"' if element in compound.elementos else '') + '>' + element.simbolo + '</FONT>' for element in pin.elementos])
+                elements_str = ", ".join(['<FONT' + (' COLOR="blue"' if element == selected_element else ' COLOR="green"' if element in compound.elementos else '') + '>' + element.simbolo + '</FONT>' for element in pin.elementos])
                 table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
 
             table += "</TABLE>>"
@@ -234,16 +227,14 @@ class Application(tk.Frame):
         return g.pipe(format='png')
 
     def display_animated_process(self, compound):
-        images = Lista()
+            images = Lista()
 
-        for machine in Maquinas:
-            for pin in machine.pines:
-                for element in pin.elementos:
-                    image_data = self.visualize_process(compound, selected_element=element)
-                    image = Image.open(io.BytesIO(image_data))
-                    images.insert(image)
+            for element in compound.elementos:
+                image_data = self.visualize_process(compound, selected_element=element)
+                image = Image.open(io.BytesIO(image_data))
+                images.insert(image)
 
-        return images
+            return images
    
 root = tk.Tk()
 app = Application(master=root)
