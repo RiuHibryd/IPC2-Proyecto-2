@@ -100,19 +100,19 @@ class Application(tk.Frame):
                     elements_label = tk.Label(machine_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos])) #Despliega los elementos de la maquina
                 elements_label.pack()
         machines_window.geometry("400x400")
-    def display_compounds(self):
+    def display_compounds(self):    #Despliega los compuestos y sus elementos
         compounds_window = tk.Toplevel(self.master)
         for compound in Compuestos:
             compound_frame = tk.Frame(compounds_window)
             compound_frame.pack()
             name_label = tk.Label(compound_frame, text=compound.nombre)
             name_label.pack()
-            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in compound.elementos]))
+            elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in compound.elementos])) #Despliega los elementos de los compuestos
             elements_label.pack()
         compounds_window.geometry("400x400")
-    def display_elements(self):
+    def display_elements(self): #Despliega los elementos quimicos
         elementos_window = tk.Toplevel(self.master)
-        columns = ('Numero atomico', 'Simbolo', 'Nombre')
+        columns = ('Numero atomico', 'Simbolo', 'Nombre')   #Columnas de la tabla
         tree = ttk.Treeview(elementos_window, columns=columns, show='headings')
         tree.heading('Nombre', text='Nombre')
         tree.heading('Simbolo', text='Simbolo')
@@ -197,7 +197,7 @@ class Application(tk.Frame):
 
         for image in images:
             photo = ImageTk.PhotoImage(image)
-            image_label.image = photo  # Guardar la imagen
+            image_label.image = photo  # Guardar una referencia a la imagen
             image_label.configure(image=photo)
             image_label.update()
             time.sleep(1)
@@ -207,37 +207,37 @@ class Application(tk.Frame):
         self.output_text.see(tk.END)
 
     def visualize_process(self, compound, current_pin_index, current_element_index):
-            g = Digraph('G', filename='process.gv', format='png')
-            g.attr(rankdir='LR', size='8,5')
+        g = Digraph('G', filename='process.gv', format='png')
+        g.attr(rankdir='LR', size='8,5')
 
-            for machine in Maquinas:
-                # Crear una tabla para cada maquina
-                table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
-                            <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
+        for machine_index, machine in enumerate(Maquinas):
+            # Create a table for each machine
+            table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                        <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
-                for i, pin in enumerate(machine.pines):
-                    elements_str = ""
-                    for j, element in enumerate(pin.elementos):
-                        color = ""
-                        if i == current_pin_index and j == current_element_index:
-                            color = ' COLOR="blue"'
-                        elif element in compound.elementos:
+            for pin_index, pin in enumerate(machine.pines):
+                elements_str = ""
+                for element_index, element in enumerate(pin.elementos):
+                    color = ""
+                    if machine_index == 0 and pin_index == current_pin_index and element_index == current_element_index:
+                        color = ' COLOR="blue"'
+                        if element in compound.elementos:
                             color = ' COLOR="green"'
-                        elements_str += '<FONT' + color + '>' + element.simbolo + '</FONT>, '
-                    elements_str = elements_str.rstrip(', ')
+                    elements_str += '<FONT' + color + '>' + element.simbolo + '</FONT>, '
+                elements_str = elements_str.rstrip(', ')
 
-                    table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
+                table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
 
-                table += "</TABLE>>"
+            table += "</TABLE>>"
 
-                g.node(machine.nombre, label=table, shape='plaintext')
+            g.node(machine.nombre, label=table, shape='plaintext')
 
-            return g.pipe(format='png')
+        return g.pipe(format='png')
 
     def display_animated_process(self, compound):
             images = Lista()
             machine = Maquinas.head.data
-            delay = 1  # Adjust this value to control the animation speed
+            delay = 1  # Ajustar el tiempo de espera entre cada imagen
             for pin_index, pin in enumerate(machine.pines):
                 for element_index, _ in enumerate(pin.elementos):
                     image_data = self.visualize_process(compound, pin_index, element_index)
