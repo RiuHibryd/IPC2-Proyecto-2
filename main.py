@@ -207,32 +207,33 @@ class Application(tk.Frame):
         self.output_text.see(tk.END)
 
     def visualize_process(self, compound, current_pin_index, current_element_index):
-        g = Digraph('G', filename='process.gv', format='png')
-        g.attr(rankdir='LR', size='8,5')
+            g = Digraph('G', filename='process.gv', format='png')
+            g.attr(rankdir='LR', size='8,5')
 
-        for machine_index, machine in enumerate(Maquinas):
-            # Create a table for each machine
-            table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
-                        <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
+            for machine_index, machine in enumerate(Maquinas):
+                # Create a table for each machine
+                table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                            <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
-            for pin_index, pin in enumerate(machine.pines):
-                elements_str = ""
-                for element_index, element in enumerate(pin.elementos):
-                    color = ""
-                    if machine_index == 0 and pin_index == current_pin_index and element_index == current_element_index:
-                        color = ' COLOR="blue"'
+                for pin_index, pin in enumerate(machine.pines):
+                    elements_str = ""
+                    for element_index, element in enumerate(pin.elementos):
+                        color = ""
                         if element in compound.elementos:
-                            color = ' COLOR="green"'
-                    elements_str += '<FONT' + color + '>' + element.simbolo + '</FONT>, '
-                elements_str = elements_str.rstrip(', ')
+                            if machine_index == 0 and pin_index == current_pin_index and element_index == current_element_index:
+                                color = ' COLOR="green"'
+                            else:
+                                color = ' COLOR="lightgreen"'
+                        elements_str += '<FONT' + color + '>' + element.simbolo + '</FONT>, '
+                    elements_str = elements_str.rstrip(', ')
 
-                table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
+                    table += '''<TR><TD BGCOLOR="lightblue">Pin ''' + str(pin.numeroPines) + '''</TD><TD>''' + elements_str + '''</TD></TR>'''
 
-            table += "</TABLE>>"
+                table += "</TABLE>>"
 
-            g.node(machine.nombre, label=table, shape='plaintext')
+                g.node(machine.nombre, label=table, shape='plaintext')
 
-        return g.pipe(format='png')
+            return g.pipe(format='png')
 
     def display_animated_process(self, compound):
             images = Lista()
