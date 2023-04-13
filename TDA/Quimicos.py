@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from tkinter import filedialog
 from tkinter import *
 from tkinter import messagebox
+#Codigo por Riu
 class Nodo:
     def __init__(self, data):
         self.data = data
@@ -56,6 +57,7 @@ class Lista:
         while current_node.next is not None:
             current_node = current_node.next
         current_node.next = new_node
+#-------------------------------------------------------
     def __len__(self):
         count = 0
         current_node = self.head
@@ -72,7 +74,7 @@ class Lista:
             else:
                 print(current_node.data)
             current_node = current_node.next
-
+#-------------------------------------------------------
     def __iter__(self):
         current_node = self.head
         while current_node is not None:
