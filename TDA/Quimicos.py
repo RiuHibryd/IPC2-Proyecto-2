@@ -12,12 +12,15 @@ class ElementoQuimico:
         self.numeroAtomico = numeroAtomico
         self.simbolo = simbolo
         self.nombre = nombre
+        self.selected = False
     def __str__(self):
         return "Numero atomico: " + str(self.numeroAtomico) + " Simbolo: " + self.simbolo + " Nombre: " + self.nombre
 class Compuesto:
-    def __init__(self, nombre=None, elementos=None):
+    def __init__(self, nombre=None, elementos=None, tiempo_optimo=None):
         self.nombre = nombre
         self.elementos = elementos
+        self.tiempo_optimo = tiempo_optimo
+        self.maquina = None
     def __str__(self):
         elements_str = ", ".join([elemento.simbolo for elemento in self.elementos])
         return "Nombre: " + self.nombre + " Elementos: " + elements_str
@@ -119,6 +122,7 @@ def load_xml_file():
             nombre = maquina.find("nombre").text
             numeroPines = maquina.find("numeroPines").text
             numeroElementos = maquina.find("numeroElementos").text
+            numLabelPin = maquina.find("Pin").text
             pines = Lista()
             for pin in maquina.findall("pin"):
                 elementos = Lista()
@@ -129,10 +133,12 @@ def load_xml_file():
                             break
                 # Chorradas criminales que hacen que funke
                 pines.insert(Pin(None, len(elementos), elementos))
-            if nombre not in [m.nombre for m in Maquinas]:
-                Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
 
-   
+                if nombre not in [m.nombre for m in Maquinas]:
+                    Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
+
+                else:
+                    messagebox.showerror("Error", "El numero de pines no coincide con el numero de pines de la maquina")
 
         for compuesto in root.findall("listaCompuestos/compuesto"):
             nombre = compuesto.find("nombre").text
@@ -149,6 +155,6 @@ def load_xml_file():
         print("Error loading XML file:", e)
 
   
-        # Print the contents of each list for verification
+     
 
     Maquinas.print_list()

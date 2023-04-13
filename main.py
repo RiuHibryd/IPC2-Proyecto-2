@@ -205,13 +205,14 @@ class Application(tk.Frame):
         elements_str = ", ".join([element.simbolo for element in compound.elementos])
         self.output_text.insert(tk.END, f"{compound.nombre}: {elements_str}\n")
         self.output_text.see(tk.END)
-
+        self.compound = compound
+        
     def visualize_process(self, compound, current_pin_index, current_element_index):
         g = Digraph('G', filename='process.gv', format='png')
         g.attr(rankdir='LR', size='8,5')
 
         for machine_index, machine in enumerate(Maquinas):
-            # Create a table for each machine
+            # Crear una tabla para mostrar los pines de la maquina
             table = '''<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
                         <TR><TD COLSPAN="2" BGCOLOR="lightblue">''' + machine.nombre + '''</TD></TR>'''
 
@@ -246,6 +247,24 @@ class Application(tk.Frame):
                     time.sleep(delay)
 
             return images
+
+ #---------------------XML---------------------
+    def save_xml(self):
+        analisis = self.add_analisys(self,compound)
+        new_root = ET.Element("Salida")
+        if self.compound is None:
+            messagebox.showerror("Error", "No hay compuestos guardados")
+            return
+        else: 
+            compound = ET.SubElement(new_root, "Compuesto")
+            compound.set("nombre", self.compound.nombre)
+            elements = ET.SubElement(compound, "Elementos")
+            for element in self.compound.elementos:
+                element_xml = ET.SubElement(elements, "Elemento")
+                element_xml.set("simbolo", element.simbolo)
+                element_xml.set("numeroAtomico", str(element.numeroAtomico))
+                element_xml.set("nombre", element.nombre)
+
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
