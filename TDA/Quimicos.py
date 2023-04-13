@@ -122,7 +122,7 @@ def load_xml_file():
             nombre = maquina.find("nombre").text
             numeroPines = maquina.find("numeroPines").text
             numeroElementos = maquina.find("numeroElementos").text
-            numLabelPin = maquina.find("Pin").text
+            numPin = len(maquina.findall("pin"))
             pines = Lista()
             for pin in maquina.findall("pin"):
                 elementos = Lista()
@@ -133,13 +133,13 @@ def load_xml_file():
                             break
                 # Chorradas criminales que hacen que funke
                 pines.insert(Pin(None, len(elementos), elementos))
-
-                if nombre not in [m.nombre for m in Maquinas]:
-                    Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
+                if numPin == int(numeroPines):
+                    if nombre not in [m.nombre for m in Maquinas]:
+                      Maquinas.insert(Maquina(nombre, numeroPines, numeroElementos, pines))
 
                 else:
                     messagebox.showerror("Error", "El numero de pines no coincide con el numero de pines de la maquina")
-
+                    return
         for compuesto in root.findall("listaCompuestos/compuesto"):
             nombre = compuesto.find("nombre").text
             elementos = Lista()
