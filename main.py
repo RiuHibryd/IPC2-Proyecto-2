@@ -249,22 +249,8 @@ class Application(tk.Frame):
             return images
 
  #---------------------XML---------------------
-    def save_xml(self):
-        analisis = self.add_analisys(self,compound)
-        new_root = ET.Element("Salida")
-        if self.compound is None:
-            messagebox.showerror("Error", "No hay compuestos guardados")
-            return
-        else: 
-            compound = ET.SubElement(new_root, "Compuesto")
-            compound.set("nombre", self.compound.nombre)
-            elements = ET.SubElement(compound, "Elementos")
-            for element in self.compound.elementos:
-                element_xml = ET.SubElement(elements, "Elemento")
-                element_xml.set("simbolo", element.simbolo)
-                element_xml.set("numeroAtomico", str(element.numeroAtomico))
-                element_xml.set("nombre", element.nombre)
-
+    def save_xml(self, compound):
+        return
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
