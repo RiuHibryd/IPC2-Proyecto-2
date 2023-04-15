@@ -40,7 +40,7 @@ class Application(tk.Frame):
         self.generate_output_button = tk.Button(self)
         self.generate_output_button["text"] = "Generar archivo de salida"
         self.generate_output_button.pack(side="top")
-        self.generate_output_button["command"] = lambda: self.generate_xml_output(self.compound, self.maquina, "output.xml") if (self.compound is not None) and (self.maquina is not None) else messagebox.showerror("Error", "Please analyze a compound first.")
+        self.generate_output_button["command"] = lambda: self.generate_xml_output(self.compound, self.maquina, "output.xml")
         # Manejo de elementos quimicos frame
         self.chem_frame = tk.LabelFrame(self, text="Manejo de elementos quimicos")
         self.chem_frame.pack(side="left")
@@ -190,15 +190,14 @@ class Application(tk.Frame):
     def add_analisys(self, compound, maquina):
         images = self.display_animated_process(compound)
 
-        # Create a new window to display the image
         image_window = tk.Toplevel(self.master)
-        # Create a label to display the image
+
         image_label = tk.Label(image_window)
         image_label.pack()
 
         for image in images:
             photo = ImageTk.PhotoImage(image)
-            image_label.image = photo  # Save a reference to the image
+            image_label.image = photo  
             image_label.configure(image=photo)
             image_label.update()
             time.sleep(1)
