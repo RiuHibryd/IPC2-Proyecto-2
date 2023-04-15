@@ -86,7 +86,7 @@ class Application(tk.Frame):
         self.help_button = tk.Button(self)
         self.help_button["text"] = "Ayudame"
         self.help_button.pack(side="bottom")
-    
+        self.help_button["command"] = lambda: self.Ayudame()
     def display_maquinas(self):  #Despliega las maquinas y sus elementos
         machines_window = tk.Toplevel(self.master)
         for machine in Maquinas:
@@ -289,7 +289,9 @@ class Application(tk.Frame):
         # Salida
         tree = ET.ElementTree(root)
         tree.write(output_file, encoding='utf-8', xml_declaration=True)
-    
+    def Ayudame(self):
+        messagebox.showinfo("Ayuda", "Cualquier Duda comunicarse con Oscar Sierra con carnet 201909320")
+        return
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
