@@ -39,7 +39,7 @@ class Application(tk.Frame):
         self.generate_output_button = tk.Button(self)
         self.generate_output_button["text"] = "Generar archivo de salida"
         self.generate_output_button.pack(side="top")
-
+        self.generate_output_button["command"] = lambda: self.generate_xml_output(self.compound, self.maquina, "output.xml")
         # Manejo de elementos quimicos frame
         self.chem_frame = tk.LabelFrame(self, text="Manejo de elementos quimicos")
         self.chem_frame.pack(side="left")
@@ -181,23 +181,23 @@ class Application(tk.Frame):
                     for pin in machine.pines:
                         elements_label = tk.Label(compound_frame, text="Elementos: " + ", ".join([element.simbolo for element in pin.elementos]))
                         elements_label.pack()
-                add_analisys_button = tk.Button(analyze_compound_window, text="Analizar Maquina", command=lambda: self.add_analisys(compound))
-                add_analisys_button.pack()
-                break
+                    add_analisys_button = tk.Button(analyze_compound_window, text="Analizar Maquina", command=lambda machine=machine: self.add_analisys(compound, machine))
+                    add_analisys_button.pack()
+                    break
         if not found:
             messagebox.showerror("Error", "El compuesto no existe")
-    def add_analisys(self, compound):
+    def add_analisys(self, compound, maquina):
         images = self.display_animated_process(compound)
 
-        # Crear una nueva ventana para mostrar la imagen
+        # Create a new window to display the image
         image_window = tk.Toplevel(self.master)
-        # Crear un label para mostrar la imagen
+        # Create a label to display the image
         image_label = tk.Label(image_window)
         image_label.pack()
 
         for image in images:
             photo = ImageTk.PhotoImage(image)
-            image_label.image = photo  # Guardar una referencia a la imagen
+            image_label.image = photo  # Save a reference to the image
             image_label.configure(image=photo)
             image_label.update()
             time.sleep(1)
@@ -206,7 +206,10 @@ class Application(tk.Frame):
         self.output_text.insert(tk.END, f"{compound.nombre}: {elements_str}\n")
         self.output_text.see(tk.END)
         self.compound = compound
-        
+        output_file = "output.xml"
+        self.generate_xml_output(compound, maquina, output_file)
+      
+        self.generate_xml_output(compound, maquina, output_file)
     def visualize_process(self, compound, current_pin_index, current_element_index):
         g = Digraph('G', filename='process.gv', format='png')
         g.attr(rankdir='LR', size='8,5')
@@ -249,8 +252,43 @@ class Application(tk.Frame):
             return images
 
  #---------------------XML---------------------
-    def save_xml(self, compound):
-        return
+    def generate_xml_output(self, compuesto, maquina, output_file):
+        root = ET.Element("RESPUESTA")
+        lista_compuestos = ET.SubElement(root, "listaCompuestos")
+        compuesto_element = ET.SubElement(lista_compuestos, "compuesto")
+
+        nombre_element = ET.SubElement(compuesto_element, "nombre")
+        nombre_element.text = compuesto.nombre
+
+        maquina_element = ET.SubElement(compuesto_element, "maquina")
+        maquina_element.text = maquina.nombre
+
+        tiempo_optimo_element = ET.SubElement(compuesto_element, "tiempoOptimo")
+        tiempo_optimo_element.text = str(compuesto.tiempo_optimo)
+
+        instrucciones_element = ET.SubElement(compuesto_element, "instrucciones")
+
+        instructions = Lista()  
+
+        index = 0
+        for instruction in instructions:
+            tiempo_element = ET.SubElement(instrucciones_element, "tiempo")
+            numero_segundo_element = ET.SubElement(tiempo_element, "numeroSegundo")
+            numero_segundo_element.text = str(index)
+            index += 1
+
+            acciones_element = ET.SubElement(tiempo_element, "acciones")
+
+            for action in instruction.elementos:
+                accion_pin_element = ET.SubElement(acciones_element, "accionPin")
+                numero_pin_element = ET.SubElement(accion_pin_element, "numeroPin")
+                numero_pin_element.text = str(action.numeroPines)
+                accion_element = ET.SubElement(accion_pin_element, "accion")
+                accion_element.text = action.accion
+
+        # Salida
+        tree = ET.ElementTree(root)
+        tree.write(output_file, encoding='utf-8', xml_declaration=True)
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
