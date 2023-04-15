@@ -21,7 +21,8 @@ class Application(tk.Frame):
         self.create_widgets()
         self.output_text = tk.Text(self, wrap=tk.WORD, width=10, height=10 )
         self.output_text.pack()
-
+        self.compound = None
+        self.maquina = None
     # Funcion para crear lainterfaz grafica
     def create_widgets(self):
         # Boton de inicializacion
@@ -39,7 +40,7 @@ class Application(tk.Frame):
         self.generate_output_button = tk.Button(self)
         self.generate_output_button["text"] = "Generar archivo de salida"
         self.generate_output_button.pack(side="top")
-        self.generate_output_button["command"] = lambda: self.generate_xml_output(self.compound, self.maquina, "output.xml")
+        self.generate_output_button["command"] = lambda: self.generate_xml_output(self.compound, self.maquina, "output.xml") if (self.compound is not None) and (self.maquina is not None) else messagebox.showerror("Error", "Please analyze a compound first.")
         # Manejo de elementos quimicos frame
         self.chem_frame = tk.LabelFrame(self, text="Manejo de elementos quimicos")
         self.chem_frame.pack(side="left")
@@ -289,6 +290,7 @@ class Application(tk.Frame):
         # Salida
         tree = ET.ElementTree(root)
         tree.write(output_file, encoding='utf-8', xml_declaration=True)
+    
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
